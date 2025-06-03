@@ -673,6 +673,9 @@
                     <div class="subject-header">
                         <div class="subject-name">${subject.name}</div>
                         <div class="subject-category">${subject.category}</div>
+<button onclick="deleteSubject(${index})" style="margin-left: auto; background: red; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
+            削除
+        </button>
                     </div>
                     <div class="subject-definition">1SPt = ${subject.definition} (${subject.ratio}Pt/SPt)</div>
                     <div class="input-group">
@@ -729,7 +732,16 @@
             }
         }
 
-        // 新科目追加
+        
+function deleteSubject(index) {
+    if (confirm("本当にこの科目を削除しますか？")) {
+        gameData.subjects.splice(index, 1);
+        saveGameData();
+        updateUI();
+    }
+}
+
+				// 新科目追加
         function addNewSubject() {
             const name = document.getElementById('newSubjectName').value.trim();
             const definition = document.getElementById('newSubjectDefinition').value.trim();
@@ -813,7 +825,17 @@
 
         // 初期化
         loadGameData();
-        updateUI();
+        updateUI()
+
+function deleteSubject(index) {
+  if (confirm("本当にこの科目を削除しますか？")) {
+    gameData.subjects.splice(index, 1);
+    saveGameData();
+    updateUI();
+  }
+}
+
+
     </script>
 </body>
 </html>
