@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>勉強レベルアップゲーム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .level-display {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .level-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .level-badge {
+            font-size: 3em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .progress-container {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            border-radius: 15px;
+            transition: width 0.5s ease;
+            box-shadow: 0 2px 10px rgba(76,175,80,0.3);
+        }
+
+        .progress-text {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 16px;
+            font-weight: bold;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab:hover {
+            background: #f5f5f5;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .subject-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .subject-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .subject-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .subject-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .subject-category {
+            background: #667eea;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+        }
+
+        .subject-definition {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .spt-input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .spt-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .add-btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76,175,80,0.3);
+        }
+
+        .add-subject-form {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .form-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .form-btn:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .history-time {
+            color: #666;
+            font-size: 0.8em;
+        }
+
+        .history-action {
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .level-info {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .subjects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                flex-direction: column;
+            }
+
+            .tabs {
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 勉強レベルアップゲーム</h1>
+            <div class="level-display">
+                <div class="level-info">
+                    <div class="level-badge">Lv.<span id="currentLevel">1</span></div>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <div class="progress-text">
+                            <span id="currentPt">0</span> / <span id="nextLevelPt">10</span> Pt
+                        </div>
+                    </div>
+                    <div class="stat-card" style="margin: 0;">
+                        <div class="stat-number" id="totalPt">0</div>
+                        <div class="stat-label">総獲得Pt</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('subjects')">科目管理</button>
+                <button class="tab" onclick="switchTab('add-subject')">科目追加</button>
+                <button class="tab" onclick="switchTab('stats')">統計</button>
+                <button class="tab" onclick="switchTab('history')">履歴</button>
+            </div>
+
+            <div id="subjects-tab" class="tab-content active">
+                <div class="subjects-grid" id="subjectsGrid">
+                    <!-- 科目カードがここに動的に生成される -->
+                </div>
+            </div>
+
+            <div id="add-subject-tab" class="tab-content">
+                <div class="add-subject-form">
+                    <h2>新しい科目を追加</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>科目名</label>
+                            <input type="text" id="newSubjectName" placeholder="例: Focus Gold IV">
+                        </div>
+                        <div class="form-group">
+                            <label>1SPtの定義</label>
+                            <input type="text" id="newSubjectDefinition" placeholder="例: 大問1問">
+                        </div>
+                        <div class="form-group">
+                            <label>交換比率 (Pt/SPt)</label>
+                            <input type="number" id="newSubjectRatio" placeholder="例: 25">
+                        </div>
+                    </div>
+                    <button class="form-btn" onclick="addNewSubject()">科目を追加</button>
+                </div>
+            </div>
+
+            <div id="stats-tab" class="tab-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalSubjects">0</div>
+                        <div class="stat-label">登録科目数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalSessions">0</div>
+                        <div class="stat-label">学習セッション数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="averagePtPerDay">0</div>
+                        <div class="stat-label">平均Pt/日</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="daysStudied">0</div>
+                        <div class="stat-label">学習日数</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="history-tab" class="tab-content">
+                <div id="historyList">
+                    <!-- 履歴がここに表示される -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // レベルアップ必要Pt表
+        const levelUpPts = [
+            10, 11, 12, 13, 15, 16, 18, 19, 21, 24, 26, 29, 31, 35, 38, 42, 46, 51, 56, 61,
+            67, 74, 81, 90, 98, 108, 119, 131, 144, 159, 174, 192, 211, 232, 255, 281, 309, 340, 374, 411,
+            453, 498, 548, 602, 663, 729, 802, 882, 970, 1067, 1174, 1291, 1420, 1562, 1719, 1891, 2080, 2288, 2516, 2768,
+            3045, 3349, 3684, 4053, 4458, 4904, 5394, 5933, 6527, 7180, 7897, 8687, 9556, 10512, 11563, 12719, 13991, 15390, 16929, 18622,
+            20484, 22532, 24786, 27264, 29991, 32990, 36289, 39918, 43909, 48300, 53130, 58443, 64288, 70716, 77788, 85567, 94123, 103536, 113889, 125278
+        ];
+
+        // 初期科目データ
+        const defaultSubjects = [
+            // 数学
+            { name: 'Focus Gold I', definition: '大問1問', ratio: 11, category: '数学' },
+            { name: 'Focus Gold II', definition: '大問1問', ratio: 27, category: '数学' },
+            { name: 'Focus Gold III', definition: '大問1問', ratio: 22, category: '数学' },
+            { name: 'Focus Gold A', definition: '大問1問', ratio: 33, category: '数学' },
+            { name: 'Focus Gold B', definition: '大問1問', ratio: 16, category: '数学' },
+            { name: 'Focus Gold C', definition: '大問1問', ratio: 38, category: '数学' },
+            { name: 'Focus Gold 思考問題', definition: '大問1問', ratio: 50, category: '数学' },
+            // 英語
+            { name: 'POWER STAGE', definition: '1問', ratio: 1, category: '英語' },
+            { name: '英検準一級単語帳', definition: '1セクション', ratio: 128, category: '英語' },
+            { name: '鉄壁', definition: '1セクション', ratio: 64, category: '英語' },
+            { name: '洋書', definition: '1冊', ratio: 343, category: '英語' },
+            // 国語
+            { name: '古文単語315', definition: '1周', ratio: 315, category: '国語' },
+            { name: 'プログレス', definition: '1題', ratio: 73, category: '国語' }
+        ];
+
+        // ゲームデータ
+        let gameData = {
+            totalPt: 0,
+            currentLevel: 1,
+            subjects: [...defaultSubjects],
+            history: [],
+            stats: {
+                totalSessions: 0,
+                studyDays: new Set(),
+                startDate: new Date().toDateString()
+            }
+        };
+
+        // ローカルストレージからデータを読み込み
+        function loadGameData() {
+            try {
+                const saved = localStorage.getItem('studyLevelGame');
+                if (saved) {
+                    const parsedData = JSON.parse(saved);
+                    if (parsedData.totalPt !== undefined) {
+                        gameData = { ...gameData, ...parsedData };
+                        // Set型のstudyDaysを復元
+                        if (parsedData.stats && parsedData.stats.studyDays) {
+                            gameData.stats.studyDays = new Set(parsedData.stats.studyDays);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.log('データの読み込みに失敗しました:', error);
+            }
+        }
+
+        // ローカルストレージにデータを保存
+        function saveGameData() {
+            try {
+                const dataToSave = {
+                    ...gameData,
+                    stats: {
+                        ...gameData.stats,
+                        studyDays: Array.from(gameData.stats.studyDays)
+                    }
+                };
+                localStorage.setItem('studyLevelGame', JSON.stringify(dataToSave));
+            } catch (error) {
+                console.log('データの保存に失敗しました:', error);
+            }
+        }
+
+        // レベル計算
+        function calculateLevel(totalPt) {
+            let level = 1;
+            let usedPt = 0;
+            
+            for (let i = 0; i < levelUpPts.length; i++) {
+                if (totalPt >= usedPt + levelUpPts[i]) {
+                    usedPt += levelUpPts[i];
+                    level++;
+                } else {
+                    break;
+                }
+            }
+            
+            const currentLevelPt = totalPt - usedPt;
+            const nextLevelPt = level <= levelUpPts.length ? levelUpPts[level - 1] : 999999;
+            
+            return { level, currentLevelPt, nextLevelPt, usedPt };
+        }
+
+        // UI更新
+        function updateUI() {
+            const levelInfo = calculateLevel(gameData.totalPt);
+            gameData.currentLevel = levelInfo.level;
+            
+            document.getElementById('currentLevel').textContent = levelInfo.level;
+            document.getElementById('currentPt').textContent = levelInfo.currentLevelPt;
+            document.getElementById('nextLevelPt').textContent = levelInfo.nextLevelPt;
+            document.getElementById('totalPt').textContent = gameData.totalPt;
+            
+            const progress = (levelInfo.currentLevelPt / levelInfo.nextLevelPt) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            
+            renderSubjects();
+            updateStats();
+            renderHistory();
+        }
+
+        // 科目カード表示
+        function renderSubjects() {
+            const grid = document.getElementById('subjectsGrid');
+            grid.innerHTML = '';
+            
+            gameData.subjects.forEach((subject, index) => {
+                const card = document.createElement('div');
+                card.className = 'subject-card';
+                card.innerHTML = `
+                    <div class="subject-header">
+                        <div class="subject-name">${subject.name}</div>
+                        <div class="subject-category">${subject.category}</div>
+                    </div>
+                    <div class="subject-definition">1SPt = ${subject.definition} (${subject.ratio}Pt/SPt)</div>
+                    <div class="input-group">
+                        <input type="number" class="spt-input" placeholder="SPt数を入力" id="input-${index}" min="0" step="0.1">
+                        <button class="add-btn" onclick="addSPt(${index})">追加</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // SPt追加
+        function addSPt(subjectIndex) {
+            const input = document.getElementById(`input-${subjectIndex}`);
+            const spt = parseFloat(input.value);
+            
+            if (isNaN(spt) || spt <= 0) {
+                alert('有効なSPt数を入力してください');
+                return;
+            }
+            
+            const subject = gameData.subjects[subjectIndex];
+            const earnedPt = Math.round(spt * subject.ratio);
+            const oldLevel = gameData.currentLevel;
+            
+            gameData.totalPt += earnedPt;
+            gameData.stats.totalSessions++;
+            gameData.stats.studyDays.add(new Date().toDateString());
+            
+            // 履歴追加
+            gameData.history.unshift({
+                time: new Date().toLocaleString('ja-JP'),
+                subject: subject.name,
+                spt: spt,
+                earnedPt: earnedPt,
+                action: `${subject.name}: ${spt}SPt → +${earnedPt}Pt`
+            });
+            
+            // 履歴を最新50件に制限
+            if (gameData.history.length > 50) {
+                gameData.history = gameData.history.slice(0, 50);
+            }
+            
+            input.value = '';
+            saveGameData();
+            updateUI();
+            
+            // レベルアップチェック
+            const newLevel = calculateLevel(gameData.totalPt).level;
+            if (newLevel > oldLevel) {
+                setTimeout(() => {
+                    alert(`🎉 レベルアップ！ Lv.${oldLevel} → Lv.${newLevel}`);
+                }, 100);
+            }
+        }
+
+        // 新科目追加
+        function addNewSubject() {
+            const name = document.getElementById('newSubjectName').value.trim();
+            const definition = document.getElementById('newSubjectDefinition').value.trim();
+            const ratio = parseFloat(document.getElementById('newSubjectRatio').value);
+            
+            if (!name || !definition || isNaN(ratio) || ratio <= 0) {
+                alert('すべての項目を正しく入力してください');
+                return;
+            }
+            
+            // 重複チェック
+            if (gameData.subjects.some(s => s.name === name)) {
+                alert('同じ名前の科目が既に存在します');
+                return;
+            }
+            
+            gameData.subjects.push({
+                name: name,
+                definition: definition,
+                ratio: ratio,
+                category: 'カスタム'
+            });
+            
+            // フォームリセット
+            document.getElementById('newSubjectName').value = '';
+            document.getElementById('newSubjectDefinition').value = '';
+            document.getElementById('newSubjectRatio').value = '';
+            
+            saveGameData();
+            updateUI();
+            alert('新しい科目が追加されました！');
+        }
+
+        // 統計更新
+        function updateStats() {
+            document.getElementById('totalSubjects').textContent = gameData.subjects.length;
+            document.getElementById('totalSessions').textContent = gameData.stats.totalSessions;
+            
+            const daysStudied = gameData.stats.studyDays.size;
+            document.getElementById('daysStudied').textContent = daysStudied;
+            
+            const averagePtPerDay = daysStudied > 0 ? Math.round(gameData.totalPt / daysStudied) : 0;
+            document.getElementById('averagePtPerDay').textContent = averagePtPerDay;
+        }
+
+        // 履歴表示
+        function renderHistory() {
+            const historyList = document.getElementById('historyList');
+            
+            if (gameData.history.length === 0) {
+                historyList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">まだ学習履歴がありません</p>';
+                return;
+            }
+            
+            historyList.innerHTML = gameData.history.map(item => `
+                <div class="history-item">
+                    <div class="history-time">${item.time}</div>
+                    <div class="history-action">${item.action}</div>
+                </div>
+            `).join('');
+        }
+
+        // タブ切り替え
+        function switchTab(tabName) {
+            // すべてのタブを非アクティブに
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // 選択されたタブをアクティブに
+            event.target.classList.add('active');
+            document.getElementById(tabName + '-tab').classList.add('active');
+        }
+
+        // エンターキーでSPt追加
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.target.classList.contains('spt-input')) {
+                const index = e.target.id.split('-')[1];
+                addSPt(parseInt(index));
+            }
+        });
+
+        // 初期化
+        loadGameData();
+        updateUI();
+    </script>
+</body>
+</html>
