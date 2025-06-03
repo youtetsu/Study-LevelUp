@@ -132,8 +132,8 @@
 
         .subjects-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
             margin-bottom: 30px;
         }
 
@@ -309,22 +309,156 @@
         }
 
         @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .header {
+                padding: 20px 15px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
             .level-info {
                 flex-direction: column;
                 text-align: center;
+                gap: 15px;
+            }
+
+            .level-badge {
+                font-size: 2.5em;
+            }
+
+            .progress-container {
+                min-width: auto;
+            }
+
+            .main-content {
+                padding: 20px 15px;
             }
 
             .subjects-grid {
                 grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .subject-card {
+                padding: 15px;
+            }
+
+            .subject-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .subject-name {
+                font-size: 1.1em;
+            }
+
+            .input-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .spt-input {
+                width: 100%;
+                padding: 12px;
+                font-size: 16px;
+            }
+
+            .add-btn {
+                width: 100%;
+                padding: 12px;
+                font-size: 16px;
             }
 
             .form-row {
                 flex-direction: column;
+                gap: 15px;
+            }
+
+            .form-group {
+                min-width: auto;
+            }
+
+            .form-group input {
+                padding: 14px;
+                font-size: 16px;
+            }
+
+            .form-btn {
+                width: 100%;
+                padding: 14px;
+                font-size: 16px;
             }
 
             .tabs {
                 overflow-x: auto;
                 white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .tab {
+                padding: 12px 20px;
+                font-size: 14px;
+                flex-shrink: 0;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+
+            .stat-card {
+                padding: 15px;
+            }
+
+            .stat-number {
+                font-size: 2em;
+            }
+
+            .history-item {
+                padding: 12px;
+            }
+
+            .add-subject-form {
+                padding: 20px 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .level-badge {
+                font-size: 2em;
+            }
+
+            .subject-name {
+                font-size: 1em;
+            }
+
+            .subject-category {
+                padding: 4px 8px;
+                font-size: 0.75em;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tab {
+                padding: 10px 15px;
+                font-size: 13px;
             }
         }
     </style>
@@ -369,6 +503,7 @@
             <div id="add-subject-tab" class="tab-content">
                 <div class="add-subject-form">
                     <h2>新しい科目を追加</h2>
+                    <p style="margin-bottom: 20px; opacity: 0.9;">PDFの科目例: Focus Gold I (大問1問, 11Pt), POWER STAGE (1問, 1Pt), 鉄壁 (1セクション, 64Pt) など</p>
                     <div class="form-row">
                         <div class="form-group">
                             <label>科目名</label>
@@ -426,25 +561,8 @@
             20484, 22532, 24786, 27264, 29991, 32990, 36289, 39918, 43909, 48300, 53130, 58443, 64288, 70716, 77788, 85567, 94123, 103536, 113889, 125278
         ];
 
-        // 初期科目データ
-        const defaultSubjects = [
-            // 数学
-            { name: 'Focus Gold I', definition: '大問1問', ratio: 11, category: '数学' },
-            { name: 'Focus Gold II', definition: '大問1問', ratio: 27, category: '数学' },
-            { name: 'Focus Gold III', definition: '大問1問', ratio: 22, category: '数学' },
-            { name: 'Focus Gold A', definition: '大問1問', ratio: 33, category: '数学' },
-            { name: 'Focus Gold B', definition: '大問1問', ratio: 16, category: '数学' },
-            { name: 'Focus Gold C', definition: '大問1問', ratio: 38, category: '数学' },
-            { name: 'Focus Gold 思考問題', definition: '大問1問', ratio: 50, category: '数学' },
-            // 英語
-            { name: 'POWER STAGE', definition: '1問', ratio: 1, category: '英語' },
-            { name: '英検準一級単語帳', definition: '1セクション', ratio: 128, category: '英語' },
-            { name: '鉄壁', definition: '1セクション', ratio: 64, category: '英語' },
-            { name: '洋書', definition: '1冊', ratio: 343, category: '英語' },
-            // 国語
-            { name: '古文単語315', definition: '1周', ratio: 315, category: '国語' },
-            { name: 'プログレス', definition: '1題', ratio: 73, category: '国語' }
-        ];
+        // 初期科目データ（空）
+        const defaultSubjects = [];
 
         // ゲームデータ
         let gameData = {
@@ -535,6 +653,17 @@
         // 科目カード表示
         function renderSubjects() {
             const grid = document.getElementById('subjectsGrid');
+            
+            if (gameData.subjects.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #666;">
+                        <h3>📚 科目がまだ登録されていません</h3>
+                        <p style="margin-top: 10px;">「科目追加」タブから新しい科目を追加してください</p>
+                    </div>
+                `;
+                return;
+            }
+            
             grid.innerHTML = '';
             
             gameData.subjects.forEach((subject, index) => {
