@@ -721,8 +721,8 @@ function toggleSubjectCard(headerElement) {
     const subject = gameData.subjects[subjectIndex];
     let earnedPt;
 
-    // 👇 ここが追加部分：「漁火」が含まれているかチェック
-    if (subject.name.includes("漁火")) {
+    // 「漁火」「isaribi」「fishingfire」が含まれているかチェック
+    if (subject.name.includes("漁火") || subject.name.toLowerCase().includes("isaribi") || subject.name.toLowerCase().includes("fishingfire")) {
         earnedPt = Math.round(spt * -50); // 強制的にマイナス
     } else {
         earnedPt = Math.round(spt * subject.ratio); // 通常の処理
