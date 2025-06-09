@@ -709,58 +709,57 @@ function toggleSubjectCard(headerElement) {
     card.classList.toggle('open');
 }
 
-        // SPt追加
         function addSPt(subjectIndex) {
-            const input = document.getElementById(`input-${subjectIndex}`);
-            const spt = parseFloat(input.value);
-            
-            if (isNaN(spt) || spt <= 0) {
-                alert('有効なSPt数を入力してください');
-                return;
-            }
-            
-            const subject = gameData.subjects[subjectIndex];
-            const earnedPt = Math.round(spt * subject.ratio);
-            const oldLevel = gameData.currentLevel;
-            
-            gameData.totalPt += earnedPt;
-            gameData.stats.totalSessions++;
-            gameData.stats.studyDays.add(new Date().toDateString());
-            
-            // 履歴追加
-            gameData.history.unshift({
-                time: new Date().toLocaleString('ja-JP'),
-                subject: subject.name,
-                spt: spt,
-                earnedPt: earnedPt,
-                action: `${subject.name}: ${spt}SPt → +${earnedPt}Pt`
-            });
-            
-            // 履歴を最新50件に制限
-            if (gameData.history.length > 50) {
-                gameData.history = gameData.history.slice(0, 50);
-            }
-            
-            input.value = '';
-            saveGameData();
-            updateUI();
-            
-            // レベルアップチェック
-            const newLevel = calculateLevel(gameData.totalPt).level;
-            if (newLevel > oldLevel) {
-                setTimeout(() => {
-                    alert(`🎉 レベルアップ！ Lv.${oldLevel} → Lv.${newLevel}`);
-                }, 100);
-            }
-        }
+    const input = document.getElementById(`input-${subjectIndex}`);
+    const spt = parseFloat(input.value);
 
-        
-function deleteSubject(index) {
-    if (confirm("本当にこの科目を削除しますか？")) {
-        gameData.subjects.splice(index, 1);
-        saveGameData();
-        updateUI();
+    if (isNaN(spt) || spt <= 0) {
+        alert('有効なSPt数を入力してください');
+        return;
     }
+
+    const subject = gameData.subjects[subjectIndex];
+    let earnedPt;
+
+    // 👇 ここが追加部分：「漁火」が含まれているかチェック
+    if (subject.name.includes("漁火")) {
+        earnedPt = Math.round(spt * -10); // 強制的にマイナス
+    } else {
+        earnedPt = Math.round(spt * subject.ratio); // 通常の処理
+    }
+
+    const oldLevel = gameData.currentLevel;
+
+    gameData.totalPt += earnedPt;
+    gameData.stats.totalSessions++;
+    gameData.stats.studyDays.add(new Date().toDateString());
+
+    // 履歴に記録
+    gameData.history.unshift({
+        time: new Date().toLocaleString('ja-JP'),
+        subject: subject.name,
+        spt: spt,
+        earnedPt: earnedPt,
+        action: `${subject.name}: ${spt}SPt → ${earnedPt >= 0 ? '+' : ''}${earnedPt}Pt`
+    });
+
+    // 履歴制限
+    if (gameData.history.length > 50) {
+        gameData.history = gameData.history.slice(0, 50);
+    }
+
+    input.value = '';
+    saveGameData();
+    updateUI();
+
+    // レベルアップ通知
+    const newLevel = calculateLevel(gameData.totalPt).level;
+    if (newLevel > oldLevel) {
+        setTimeout(() => {
+            alert(`🎉 レベルアップ！ Lv.${oldLevel} → Lv.${newLevel}`);
+        }, 100);
+    }
+}
 }
 
 				// 新科目追加
