@@ -653,7 +653,9 @@
         // 科目カード表示
         function renderSubjects() {
             const grid = document.getElementById('subjectsGrid');
-            
+
+gameData.subjects.sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+		
             if (gameData.subjects.length === 0) {
                 grid.innerHTML = `
                     <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #666;">
