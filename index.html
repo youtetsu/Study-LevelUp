@@ -461,6 +461,17 @@
                 font-size: 13px;
             }
         }
+
+.subject-body {
+    display: none;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+}
+
+.subject-card.open .subject-body {
+    display: block;
+}
+
     </style>
 </head>
 <body>
@@ -652,42 +663,51 @@
 
         // 科目カード表示
         function renderSubjects() {
-            const grid = document.getElementById('subjectsGrid');
+    const grid = document.getElementById('subjectsGrid');
 
-gameData.subjects.sort((a, b) => a.name.localeCompare(b.name, 'ja'));
-		
-            if (gameData.subjects.length === 0) {
-                grid.innerHTML = `
-                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #666;">
-                        <h3>📚 科目がまだ登録されていません</h3>
-                        <p style="margin-top: 10px;">「科目追加」タブから新しい科目を追加してください</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            grid.innerHTML = '';
-            
-            gameData.subjects.forEach((subject, index) => {
-                const card = document.createElement('div');
-                card.className = 'subject-card';
-                card.innerHTML = `
-                    <div class="subject-header">
-                        <div class="subject-name">${subject.name}</div>
-                        <div class="subject-category">${subject.category}</div>
-<button onclick="deleteSubject(${index})" style="margin-left: auto; background: red; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
-            削除
-        </button>
-                    </div>
-                    <div class="subject-definition">1SPt = ${subject.definition} (${subject.ratio}Pt/SPt)</div>
-                    <div class="input-group">
-                        <input type="number" class="spt-input" placeholder="SPt数を入力" id="input-${index}" min="0" step="0.1">
-                        <button class="add-btn" onclick="addSPt(${index})">追加</button>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
+    // あいうえお順ソート
+    gameData.subjects.sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+
+    if (gameData.subjects.length === 0) {
+        grid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #666;">
+                <h3>📚 科目がまだ登録されていません</h3>
+                <p style="margin-top: 10px;">「科目追加」タブから新しい科目を追加してください</p>
+            </div>
+        `;
+        return;
+    }
+
+    grid.innerHTML = '';
+
+    gameData.subjects.forEach((subject, index) => {
+        const card = document.createElement('div');
+        card.className = 'subject-card';
+        card.innerHTML = `
+            <div class="subject-header" onclick="toggleSubjectCard(this)">
+                <div class="subject-name">${subject.name}</div>
+                <div class="subject-category">${subject.category}</div>
+                <button onclick="event.stopPropagation(); deleteSubject(${index})" 
+                    style="margin-left: auto; background: red; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
+                    削除
+                </button>
+            </div>
+            <div class="subject-body">
+                <div class="subject-definition">1SPt = ${subject.definition} (${subject.ratio}Pt/SPt)</div>
+                <div class="input-group">
+                    <input type="number" class="spt-input" placeholder="SPt数を入力" id="input-${index}" min="0" step="0.1">
+                    <button class="add-btn" onclick="addSPt(${index})">追加</button>
+                </div>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+function toggleSubjectCard(headerElement) {
+    const card = headerElement.closest('.subject-card');
+    card.classList.toggle('open');
+}
 
         // SPt追加
         function addSPt(subjectIndex) {
