@@ -723,7 +723,7 @@ function toggleSubjectCard(headerElement) {
 
     // 👇 ここが追加部分：「漁火」が含まれているかチェック
     if (subject.name.includes("漁火")) {
-        earnedPt = Math.round(spt * -10); // 強制的にマイナス
+        earnedPt = Math.round(spt * -50); // 強制的にマイナス
     } else {
         earnedPt = Math.round(spt * subject.ratio); // 通常の処理
     }
