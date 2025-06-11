@@ -722,7 +722,7 @@ function toggleSubjectCard(headerElement) {
     let earnedPt;
 
     // 「漁火」「isaribi」「fishingfire」が含まれているかチェック
-    if (subject.name.includes("漁火") || subject.name.toLowerCase().includes("isaribi") || subject.name.toLowerCase().includes("fishingfire")) {
+    if (subject.name.includes("漁火") || subject.name.toLowerCase().includes("isaribi") || subject.name.toLowerCase().includes("ish")) {
         earnedPt = Math.round(spt * -50); // 強制的にマイナス
     } else {
         earnedPt = Math.round(spt * subject.ratio); // 通常の処理
