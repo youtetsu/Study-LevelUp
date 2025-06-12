@@ -684,24 +684,58 @@
         const card = document.createElement('div');
         card.className = 'subject-card';
         card.innerHTML = `
-            <div class="subject-header" onclick="toggleSubjectCard(this)">
-                <div class="subject-name">${subject.name}</div>
-                <div class="subject-category">${subject.category}</div>
-                <button onclick="event.stopPropagation(); deleteSubject(${index})" 
-                    style="margin-left: auto; background: red; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
-                    削除
-                </button>
-            </div>
-            <div class="subject-body">
-                <div class="subject-definition">1SPt = ${subject.definition} (${subject.ratio}Pt/SPt)</div>
-                <div class="input-group">
-                    <input type="number" class="spt-input" placeholder="SPt数を入力" id="input-${index}" min="0" step="0.1">
-                    <button class="add-btn" onclick="addSPt(${index})">追加</button>
-                </div>
-            </div>
-        `;
+    <div class="subject-header" onclick="toggleSubjectCard(this)">
+        <div class="subject-name">${subject.name}</div>
+        <div class="subject-category">${subject.category}</div>
+        <button onclick="event.stopPropagation(); deleteSubject(${index})"
+            style="margin-left: auto; background: red; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
+            削除
+        </button>
+        <button onclick="event.stopPropagation(); editSubject(${index})"
+            style="margin-left: 10px; background: orange; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
+            編集
+        </button>
+    </div>
+    <div class="subject-body">
+        <div class="subject-definition">1SPt = <span id="def-${index}">${subject.definition}</span> 
+            (<span id="ratio-${index}">${subject.ratio}</span>Pt/SPt)</div>
+        <div class="input-group">
+            <input type="number" class="spt-input" placeholder="SPt数を入力" id="input-${index}" min="0" step="0.1">
+            <button class="add-btn" onclick="addSPt(${index})">追加</button>
+        </div>
+
+        <!-- 編集用フォーム（非表示） -->
+        <div id="edit-form-${index}" style="display:none; margin-top: 10px;">
+            <input type="text" id="edit-def-${index}" value="${subject.definition}" placeholder="定義" style="margin-bottom: 5px; width: 60%;">
+            <input type="number" id="edit-ratio-${index}" value="${subject.ratio}" placeholder="比率" style="margin-bottom: 5px; width: 60%;">
+            <button onclick="saveEdit(${index})" style="background: green; color: white; padding: 5px 10px; border: none; border-radius: 5px;">保存</button>
+        </div>
+    </div>
+`;
         grid.appendChild(card);
     });
+}
+
+function editSubject(index) {
+    const form = document.getElementById(`edit-form-${index}`);
+    form.style.display = (form.style.display === 'none') ? 'block' : 'none';
+}
+
+function saveEdit(index) {
+    const newDef = document.getElementById(`edit-def-${index}`).value.trim();
+    const newRatio = parseFloat(document.getElementById(`edit-ratio-${index}`).value);
+
+    if (!newDef || isNaN(newRatio) || newRatio <= 0) {
+        alert("定義と比率を正しく入力してください");
+        return;
+    }
+
+    gameData.subjects[index].definition = newDef;
+    gameData.subjects[index].ratio = newRatio;
+
+    saveGameData();
+    updateUI();
+    alert("科目が編集されました！");
 }
 
 function toggleSubjectCard(headerElement) {
@@ -816,7 +850,9 @@ function toggleSubjectCard(headerElement) {
                 return;
             }
             
-            historyList.innerHTML = gameData.history.map(item => `
+            
+
+historyList.innerHTML = gameData.history.map(item => `
                 <div class="history-item">
                     <div class="history-time">${item.time}</div>
                     <div class="history-action">${item.action}</div>
